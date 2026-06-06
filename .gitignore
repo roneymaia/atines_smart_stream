@@ -9,3 +9,8 @@ cameras.json
 /vendor-ffmpeg/
 # OS
 .DS_Store
+
+# Verification artifacts
+.playwright-mcp/
+ui-*.png
+/atines_smart_stream
