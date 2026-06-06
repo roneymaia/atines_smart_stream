@@ -1,0 +1,11 @@
+# Go
+/bin/
+*.exe
+*.test
+*.out
+# Runtime data
+cameras.json
+# FFmpeg binaries bundled at release time
+/vendor-ffmpeg/
+# OS
+.DS_Store
