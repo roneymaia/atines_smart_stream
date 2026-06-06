@@ -15,6 +15,7 @@ import (
 	"atines_smart_stream/internal/launcher"
 	"atines_smart_stream/internal/media"
 	"atines_smart_stream/internal/model"
+	"atines_smart_stream/internal/service"
 	"atines_smart_stream/internal/store"
 	"atines_smart_stream/internal/supervisor"
 )
@@ -23,7 +24,24 @@ func main() {
 	addr := flag.String("addr", "127.0.0.1:8787", "endereço de escuta da UI")
 	dataPath := flag.String("data", defaultDataPath(), "caminho do cameras.json")
 	noBrowser := flag.Bool("no-browser", false, "não abrir o navegador ao iniciar")
+	installSvc := flag.Bool("install-service", false, "instalar como serviço do SO (24/7)")
+	uninstallSvc := flag.Bool("uninstall-service", false, "remover o serviço do SO")
 	flag.Parse()
+
+	if *installSvc {
+		if err := service.Install(); err != nil {
+			log.Fatalf("instalar serviço: %v", err)
+		}
+		fmt.Println("Serviço instalado. O app sobe junto com o sistema.")
+		return
+	}
+	if *uninstallSvc {
+		if err := service.Uninstall(); err != nil {
+			log.Fatalf("remover serviço: %v", err)
+		}
+		fmt.Println("Serviço removido.")
+		return
+	}
 
 	ffmpegPath, ffprobePath, err := ffmpeg.Locate()
 	if err != nil {
