@@ -36,7 +36,7 @@ func TestBuildArgs_H264Remux(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := []string{
-		"-rtsp_transport", "tcp", "-rw_timeout", "5000000",
+		"-rtsp_transport", "tcp", "-timeout", "5000000",
 		"-i", "rtsp://user:pass@host:554/stream",
 		"-c:v", "copy",
 		"-c:a", "copy",
@@ -51,7 +51,7 @@ func TestBuildArgs_MJPEGTranscodeSoftware(t *testing.T) {
 	got, _ := BuildArgs(cam(model.TranscodeAuto, model.AccelAuto),
 		ProbeResult{VideoCodec: "mjpeg", AudioCodec: "pcm_mulaw", HasAudio: true}, Capabilities{})
 	want := []string{
-		"-rtsp_transport", "tcp", "-rw_timeout", "5000000",
+		"-rtsp_transport", "tcp", "-timeout", "5000000",
 		"-i", "rtsp://user:pass@host:554/stream",
 		"-c:v", "libx264", "-preset", "veryfast", "-tune", "zerolatency", "-g", "50",
 		"-c:a", "aac", "-b:a", "128k",
@@ -66,7 +66,7 @@ func TestBuildArgs_HEVCAutoTranscodesToNVENC(t *testing.T) {
 	got, _ := BuildArgs(cam(model.TranscodeAuto, model.AccelAuto),
 		ProbeResult{VideoCodec: "hevc", HasAudio: false}, Capabilities{NVENC: true})
 	want := []string{
-		"-rtsp_transport", "tcp", "-rw_timeout", "5000000",
+		"-rtsp_transport", "tcp", "-timeout", "5000000",
 		"-i", "rtsp://user:pass@host:554/stream",
 		"-c:v", "h264_nvenc", "-preset", "p4", "-tune", "ll", "-g", "50",
 		"-an",
@@ -91,9 +91,26 @@ func TestBuildArgs_VAAPIAddsDeviceAndFilter(t *testing.T) {
 		ProbeResult{VideoCodec: "h264", HasAudio: false}, Capabilities{VAAPI: true})
 	want := []string{
 		"-vaapi_device", "/dev/dri/renderD128",
-		"-rtsp_transport", "tcp", "-rw_timeout", "5000000",
+		"-rtsp_transport", "tcp", "-timeout", "5000000",
 		"-i", "rtsp://user:pass@host:554/stream",
 		"-vf", "format=nv12,hwupload", "-c:v", "h264_vaapi", "-g", "50",
+		"-an",
+		"-f", "flv", "rtmp://srs/live/cam1",
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("\n got=%v\nwant=%v", got, want)
+	}
+}
+
+func TestBuildArgs_UsesDetectedRTSPTimeoutFlag(t *testing.T) {
+	// ffmpeg 4.x: socket timeout flag is -stimeout.
+	got, _ := BuildArgs(cam(model.TranscodeCopy, model.AccelAuto),
+		ProbeResult{VideoCodec: "h264", HasAudio: false},
+		Capabilities{RTSPTimeoutOpt: "-stimeout"})
+	want := []string{
+		"-rtsp_transport", "tcp", "-stimeout", "5000000",
+		"-i", "rtsp://user:pass@host:554/stream",
+		"-c:v", "copy",
 		"-an",
 		"-f", "flv", "rtmp://srs/live/cam1",
 	}

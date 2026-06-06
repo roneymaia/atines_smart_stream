@@ -15,13 +15,32 @@ func parseEncoders(out string) Capabilities {
 	}
 }
 
-// DetectCapabilities inspects the bundled ffmpeg for hardware H.264 encoders.
-// On any error it returns an empty Capabilities (software-only).
-func DetectCapabilities(ctx context.Context, ffmpegPath string) Capabilities {
-	cmd := exec.CommandContext(ctx, ffmpegPath, "-hide_banner", "-encoders")
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return Capabilities{}
+// parseRTSPTimeoutOpt picks the socket-timeout flag from the rtsp demuxer help.
+// ffmpeg 4.x exposes "stimeout" (microseconds); 5.x+ removed it and uses
+// "timeout" for the socket timeout instead.
+func parseRTSPTimeoutOpt(rtspHelp string) string {
+	if strings.Contains(rtspHelp, "stimeout") {
+		return "-stimeout"
 	}
-	return parseEncoders(string(out))
+	return "-timeout"
+}
+
+func detectRTSPTimeoutOpt(ctx context.Context, ffmpegPath string) string {
+	out, err := exec.CommandContext(ctx, ffmpegPath, "-hide_banner", "-h", "demuxer=rtsp").CombinedOutput()
+	if err != nil {
+		return "-timeout"
+	}
+	return parseRTSPTimeoutOpt(string(out))
+}
+
+// DetectCapabilities inspects the bundled ffmpeg for hardware H.264 encoders and
+// the correct RTSP timeout flag. Encoder-detection errors degrade to
+// software-only; the timeout flag always gets a sane default.
+func DetectCapabilities(ctx context.Context, ffmpegPath string) Capabilities {
+	caps := Capabilities{}
+	if out, err := exec.CommandContext(ctx, ffmpegPath, "-hide_banner", "-encoders").CombinedOutput(); err == nil {
+		caps = parseEncoders(string(out))
+	}
+	caps.RTSPTimeoutOpt = detectRTSPTimeoutOpt(ctx, ffmpegPath)
+	return caps
 }

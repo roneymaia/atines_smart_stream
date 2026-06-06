@@ -7,12 +7,17 @@ type ProbeResult struct {
 	HasAudio   bool
 }
 
-// Capabilities lists hardware H.264 encoders available in the bundled ffmpeg.
+// Capabilities lists hardware H.264 encoders available in the bundled ffmpeg
+// plus the RTSP socket-timeout flag that this ffmpeg understands.
 type Capabilities struct {
 	NVENC bool // h264_nvenc
 	QSV   bool // h264_qsv
 	AMF   bool // h264_amf
 	VAAPI bool // h264_vaapi
+	// RTSPTimeoutOpt is the input flag for the RTSP socket I/O timeout:
+	// "-stimeout" on ffmpeg 4.x, "-timeout" on ffmpeg 5.x+. Older ffmpeg
+	// rejects "-rw_timeout" outright ("Option rw_timeout not found").
+	RTSPTimeoutOpt string
 }
 
 // encoderPlan describes how the video stream is handled.

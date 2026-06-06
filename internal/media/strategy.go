@@ -26,9 +26,14 @@ func BuildArgs(cam model.Camera, probe ProbeResult, caps Capabilities) ([]string
 	}
 	plan := videoPlan(cam, probe, caps)
 
+	timeoutOpt := caps.RTSPTimeoutOpt
+	if timeoutOpt == "" {
+		timeoutOpt = "-timeout" // modern ffmpeg (5.x+) default
+	}
+
 	args := make([]string, 0, 24)
 	args = append(args, plan.preInput...)
-	args = append(args, "-rtsp_transport", "tcp", "-rw_timeout", "5000000", "-i", in)
+	args = append(args, "-rtsp_transport", "tcp", timeoutOpt, "5000000", "-i", in)
 	if plan.copyVideo {
 		args = append(args, "-c:v", "copy")
 	} else {
