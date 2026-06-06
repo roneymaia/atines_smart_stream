@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atines Smart Stream</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Atines Smart Stream</h1>
+    <button id="btn-new">+ Nova câmera</button>
+  </header>
+
+  <main>
+    <table id="cameras">
+      <thead>
+        <tr><th>Status</th><th>Nome</th><th>Destino RTMP</th><th>Ativo</th><th>Ações</th></tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <p id="empty" hidden>Nenhuma câmera cadastrada. Clique em "+ Nova câmera".</p>
+  </main>
+
+  <dialog id="form-dialog">
+    <form id="cam-form" method="dialog">
+      <h2 id="form-title">Nova câmera</h2>
+      <input type="hidden" id="f-id">
+      <label>Nome <input id="f-name" required></label>
+      <label>URL RTSP (ingest) <input id="f-rtsp" placeholder="rtsp://host:554/stream" required></label>
+      <label>Usuário RTSP <input id="f-user"></label>
+      <label>Senha RTSP <input id="f-pass" type="password"></label>
+      <label>URL RTMP (destino) <input id="f-rtmp" placeholder="rtmp://srs/live/cam1" required></label>
+      <label>Transcode
+        <select id="f-transcode">
+          <option value="auto">Automático</option>
+          <option value="copy">Forçar copiar (remux)</option>
+          <option value="transcode">Forçar transcodificar</option>
+          <option value="keep_h265">Manter H.265 (avançado)</option>
+        </select>
+      </label>
+      <label>Aceleração
+        <select id="f-accel">
+          <option value="auto">Automática</option>
+          <option value="hardware">Hardware</option>
+          <option value="software">Software</option>
+        </select>
+      </label>
+      <p id="form-error" class="error"></p>
+      <menu>
+        <button value="cancel" type="button" id="btn-cancel" class="secondary">Cancelar</button>
+        <button value="ok" id="btn-save">Salvar</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
