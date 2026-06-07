@@ -42,19 +42,27 @@ nada**. Para operação 24/7 desacompanhada, instale o auto-start (veja abaixo).
 Não há botão na interface para isso — o toggle "Ativo" da tela é **por câmera**. O
 auto-start é via linha de comando, uma vez:
 
-### Windows (como **Administrador**)
-Abra o **Prompt de Comando** ou **PowerShell como Administrador**, vá até a pasta do
-programa e:
+### Windows — jeito fácil (dois cliques)
+No pacote (`.zip`) já vão dois atalhos. Basta executar:
+
+- **`instalar-servico.bat`** → ativa o auto-start (pede confirmação do UAC e pronto).
+- **`desinstalar-servico.bat`** → desativa.
+
+> O `.bat` se auto-eleva (pede Administrador), então é só dar dois cliques e confirmar.
+
+### Windows — linha de comando (equivalente)
+Em um **Prompt/PowerShell como Administrador**, na pasta do programa:
 
 ```bat
-atines-smart-stream-windows-amd64.exe --install-service     REM ativa (sobe no boot)
-atines-smart-stream-windows-amd64.exe --uninstall-service   REM desativa
+atines-smart-stream.exe --install-service     REM ativa (sobe no boot)
+atines-smart-stream.exe --uninstall-service   REM desativa
 ```
 
-Isso cria uma **Tarefa Agendada** (`AtinesSmartStream`, gatilho "ao iniciar o sistema",
-conta `SYSTEM`) e já a inicia. Confira/remova também pelo **Agendador de Tarefas** do
-Windows (`taskschd.msc`). Depois é só abrir `http://127.0.0.1:8787` no navegador para
-gerenciar — o programa roda em segundo plano.
+Os dois criam uma **Tarefa Agendada** (`AtinesSmartStream`, gatilho "ao iniciar o sistema",
+conta `SYSTEM`) e já a iniciam. Confira/remova também pelo **Agendador de Tarefas**
+(`taskschd.msc`). Depois é só abrir `http://127.0.0.1:8787` no navegador para gerenciar — o
+programa roda em segundo plano. **Não mova nem apague a pasta** depois de instalar (o
+auto-start aponta para o caminho do `.exe`).
 
 > Por que Tarefa Agendada e não "Serviço" (`services.msc`)? Um serviço de verdade do
 > Windows precisa falar o protocolo do SCM; este executável simples não fala, então
