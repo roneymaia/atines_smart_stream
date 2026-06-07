@@ -128,6 +128,22 @@ Requer **Go 1.22+**.
 (`cameras.json`, escrita atômica, permissão `0600`); a UI é embutida no binário via
 `go:embed`. FFmpeg/ffprobe são empacotados no release ao lado do binário.
 
+### Metadados do executável Windows (versão/empresa)
+
+O `.exe` do Windows carrega metadados de versão (CompanyName **Atines**, ProductName,
+versão...), que aparecem em **Propriedades → Detalhes**. Binários Go saem sem isso por
+padrão, o que deixa o arquivo "anônimo" e mais sujeito a **falso-positivo de antivírus**;
+os metadados não eliminam o problema (só a assinatura de código faz isso), mas ajudam.
+
+São gerados por `tools/winres` (só biblioteca padrão, sem dependência externa), que
+emite `rsrc_windows_*.syso` na raiz — o `go build` os inclui automaticamente nos alvos
+Windows (e os ignora no Linux). **A cada nova versão**, edite as constantes em
+`tools/winres/main.go` e rode, na raiz:
+
+```bash
+go run ./tools/winres   # regenera os .syso; commite-os junto
+```
+
 ### Empacotar com FFmpeg incluído
 
 `package.sh` baixa o `ffmpeg`/`ffprobe` estático certo por plataforma
