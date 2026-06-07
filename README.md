@@ -18,11 +18,49 @@ automaticamente quando há transcode; sem ela, cai para `libx264 -preset veryfas
 
 ## Como usar (usuário final)
 
+> **Windows (dois cliques):** extraia o `.zip` por completo e dê dois cliques em
+> **`iniciar.bat`**. Ele desbloqueia os arquivos (veja
+> [Problemas ao abrir no Windows](#problemas-ao-abrir-no-windows)) e abre o programa.
+> Não clique no `ffmpeg.exe` (o arquivo grande, ~200 MB) — o que se executa é o
+> `atines-smart-stream.exe` (~6 MB), e o `iniciar.bat` já cuida disso.
+
 1. Coloque `ffmpeg`/`ffprobe` (e `.exe` no Windows) na mesma pasta do executável,
    ou tenha-os no PATH.
 2. Rode o executável. A tela de gerência abre no navegador (http://127.0.0.1:8787).
 3. Cadastre câmeras (nome, URL RTSP, usuário/senha RTSP, URL RTMP de destino) e use o
    toggle **Ativo** para ligar/desligar cada conversão.
+
+### Problemas ao abrir no Windows
+
+Se ao dar dois cliques aparecer **"O Windows não pode acessar o dispositivo, caminho ou
+arquivo especificado. Talvez você não tenha as permissões adequadas para acessar o item"**,
+o Windows está **bloqueando o arquivo** (ele não chega nem a rodar). Causas, da mais
+comum para a menos comum:
+
+1. **Arquivo "bloqueado" por ter vindo da internet (Mark of the Web).** Tudo que sai de
+   um `.zip` baixado fica marcado e o Windows pode recusar a execução.
+   **Solução fácil:** use o **`iniciar.bat`** (ele desbloqueia tudo). Manual: clique com o
+   botão direito no `.exe` → **Propriedades** → marque **Desbloquear** → **OK**.
+   Por PowerShell, na pasta do programa:
+   ```powershell
+   Get-ChildItem -Recurse | Unblock-File
+   ```
+2. **Antivírus / Segurança do Windows bloqueou ou colocou em quarentena.** Binários não
+   assinados que fazem rede (streaming) costumam dar falso-positivo. Abra **Segurança do
+   Windows → Proteção contra vírus e ameaças**, veja o **Histórico de proteção** e
+   **restaure** o arquivo; depois adicione a pasta em **Exclusões**. Conferir por PowerShell:
+   ```powershell
+   Get-MpThreatDetection | Sort-Object InitialDetectionTime -Descending | Select-Object -First 5
+   ```
+3. **Permissões / política da máquina.** Em PCs corporativos, AppLocker/Política de Grupo
+   pode barrar `.exe` fora de `Arquivos de Programas`. Tente rodar como Administrador
+   ou peça ao TI uma exceção para a pasta.
+
+**Para ver o erro de verdade** (o duplo-clique esconde a mensagem), abra o PowerShell na
+pasta e rode `.\atines-smart-stream.exe`:
+- *abre e diz "rodando em http://127.0.0.1:8787"* → era só o bloqueio (item 1), resolvido;
+- *"Acesso negado"* → antivírus ou permissões (itens 2/3);
+- *"não é um aplicativo Win32 válido"* → download corrompido, baixe o `.zip` de novo.
 
 ### Opções de linha de comando
 
@@ -43,8 +81,9 @@ Não há botão na interface para isso — o toggle "Ativo" da tela é **por câ
 auto-start é via linha de comando, uma vez:
 
 ### Windows — jeito fácil (dois cliques)
-No pacote (`.zip`) já vão dois atalhos. Basta executar:
+No pacote (`.zip`) já vão os atalhos. Basta executar:
 
+- **`iniciar.bat`** → desbloqueia os arquivos e abre o programa (uso normal).
 - **`instalar-servico.bat`** → ativa o auto-start (pede confirmação do UAC e pronto).
 - **`desinstalar-servico.bat`** → desativa.
 

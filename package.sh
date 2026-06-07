@@ -113,7 +113,7 @@ for t in "${ALL_TARGETS[@]}"; do
   [ -f README.md ] && cp README.md "$stage/"
   if [ "$goos" = "windows" ]; then
     # double-click helpers, converted to CRLF (Windows line endings)
-    for b in instalar-servico desinstalar-servico; do
+    for b in iniciar instalar-servico desinstalar-servico; do
       sed 's/$/\r/' "packaging/windows/$b.bat" > "$stage/$b.bat"
     done
   fi
