@@ -30,9 +30,9 @@ ALL_TARGETS=(
   "windows arm64 winarm64 zip .exe"
 )
 
-want() { # filter targets by CLI args (os/arch); empty args => all
-  [ "$#" -eq 0 ] && return 0
+want() { # want <key> [filters...]; no filters => match all
   local key="$1"; shift
+  [ "$#" -eq 0 ] && return 0
   for a in "$@"; do [ "$a" = "$key" ] && return 0; done
   return 1
 }
