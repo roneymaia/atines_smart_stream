@@ -8,9 +8,12 @@ import (
 	"runtime"
 )
 
-const unitName = "atines-smart-stream.service"
+const (
+	unitName = "atines-smart-stream.service"
+	taskName = "AtinesSmartStream" // Windows Scheduled Task name
+)
 
-// Install registers the app as an OS service that starts on boot.
+// Install registers the app to start automatically on boot.
 func Install() error {
 	exe, err := os.Executable()
 	if err != nil {
@@ -20,23 +23,48 @@ func Install() error {
 	case "linux":
 		return installSystemd(exe)
 	case "windows":
-		return run("sc", "create", "AtinesSmartStream", "binPath=", exe+" --no-browser", "start=", "auto")
+		return installWindowsTask(exe)
 	default:
 		return fmt.Errorf("instalação de serviço não suportada em %s", runtime.GOOS)
 	}
 }
 
-// Uninstall removes the OS service.
+// Uninstall removes the auto-start registration.
 func Uninstall() error {
 	switch runtime.GOOS {
 	case "linux":
 		_ = run("systemctl", "--user", "disable", "--now", unitName)
 		return os.Remove(systemdUnitPath())
 	case "windows":
-		return run("sc", "delete", "AtinesSmartStream")
+		_ = run("schtasks", "/end", "/tn", taskName)
+		return run("schtasks", "/delete", "/tn", taskName, "/f")
 	default:
 		return fmt.Errorf("não suportado em %s", runtime.GOOS)
 	}
+}
+
+// installWindowsTask registers a Scheduled Task that launches the app at system
+// boot (as SYSTEM). A plain exe like this one is NOT a true Windows service
+// (it doesn't implement the SCM control protocol), so `sc create` would fail
+// with error 1053 at start; a Scheduled Task runs a normal exe reliably.
+// Requires an elevated (Administrator) prompt.
+func installWindowsTask(exe string) error {
+	// Single /tr value: the quoted exe path plus the headless flag.
+	tr := `"` + exe + `" --no-browser`
+	if err := run("schtasks", "/create",
+		"/tn", taskName,
+		"/tr", tr,
+		"/sc", "onstart",
+		"/ru", "SYSTEM",
+		"/rl", "HIGHEST",
+		"/f",
+	); err != nil {
+		return err
+	}
+	// Start it now too, so the user doesn't have to reboot. Don't fail the
+	// install if the immediate start hiccups.
+	_ = run("schtasks", "/run", "/tn", taskName)
+	return nil
 }
 
 func installSystemd(exe string) error {

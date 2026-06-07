@@ -35,8 +35,39 @@ automaticamente quando há transcode; sem ela, cai para `libx264 -preset veryfas
 | `--uninstall-service` | remove o serviço |
 
 As conversões rodam dentro do processo do app — **fechar a aba do navegador não para
-nada**. Para operação 24/7 desacompanhada, use `--install-service` (systemd no Linux,
-Service do Windows).
+nada**. Para operação 24/7 desacompanhada, instale o auto-start (veja abaixo).
+
+## Rodar sempre (24/7, no startup)
+
+Não há botão na interface para isso — o toggle "Ativo" da tela é **por câmera**. O
+auto-start é via linha de comando, uma vez:
+
+### Windows (como **Administrador**)
+Abra o **Prompt de Comando** ou **PowerShell como Administrador**, vá até a pasta do
+programa e:
+
+```bat
+atines-smart-stream-windows-amd64.exe --install-service     REM ativa (sobe no boot)
+atines-smart-stream-windows-amd64.exe --uninstall-service   REM desativa
+```
+
+Isso cria uma **Tarefa Agendada** (`AtinesSmartStream`, gatilho "ao iniciar o sistema",
+conta `SYSTEM`) e já a inicia. Confira/remova também pelo **Agendador de Tarefas** do
+Windows (`taskschd.msc`). Depois é só abrir `http://127.0.0.1:8787` no navegador para
+gerenciar — o programa roda em segundo plano.
+
+> Por que Tarefa Agendada e não "Serviço" (`services.msc`)? Um serviço de verdade do
+> Windows precisa falar o protocolo do SCM; este executável simples não fala, então
+> `sc create` falharia (erro 1053). A Tarefa Agendada roda um `.exe` comum no boot de
+> forma confiável.
+
+### Linux (systemd do usuário)
+```bash
+./atines-smart-stream-linux-amd64 --install-service     # ativa
+./atines-smart-stream-linux-amd64 --uninstall-service   # remove
+```
+Cria um serviço `--user` (`systemctl --user`). Para subir no boot **sem login**, habilite
+o linger uma vez: `loginctl enable-linger $USER`.
 
 ## Build (desenvolvedor)
 
