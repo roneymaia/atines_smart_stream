@@ -14,3 +14,6 @@ cameras.json
 .playwright-mcp/
 ui-*.png
 /atines_smart_stream
+
+dist/
+.cache/

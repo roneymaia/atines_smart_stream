@@ -50,6 +50,27 @@ Requer **Go 1.22+**.
 (`cameras.json`, escrita atômica, permissão `0600`); a UI é embutida no binário via
 `go:embed`. FFmpeg/ffprobe são empacotados no release ao lado do binário.
 
+### Empacotar com FFmpeg incluído
+
+`package.sh` baixa o `ffmpeg`/`ffprobe` estático certo por plataforma
+(de [BtbN/FFmpeg-Builds](https://github.com/BtbN/FFmpeg-Builds), GPL) e gera, em `dist/`,
+um pacote autocontido por plataforma (binário + ffmpeg + ffprobe + licenças):
+
+```bash
+./package.sh                 # todos os alvos
+./package.sh linux/amd64     # só um
+```
+
+Linux vira `.tar.gz`, Windows vira `.zip`. O download fica em cache (`vendor-ffmpeg/`).
+Requer `curl`, `tar`/`xz`, `unzip` e `python3` (para criar o `.zip`).
+
+> **Tamanho:** o ffmpeg estático "full" é grande (~150–200 MB cada `ffmpeg`/`ffprobe`),
+> então o pacote fica ~150 MB por plataforma. É o preço de zero-instalação. Alternativas
+> para encolher: usar um build "essentials"/menor, dropar o `ffprobe` empacotado (o app já
+> tolera falha de probe), ou não empacotar e pedir ao usuário um ffmpeg do sistema
+> (`winget install ffmpeg` / `apt install ffmpeg`). Como FFmpeg é **GPL**, o
+> `FFMPEG-LICENSE.txt` vai junto no pacote.
+
 ### Testes
 
 ```bash
