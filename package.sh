@@ -127,6 +127,7 @@ for t in "${ALL_TARGETS[@]}"; do
     tar -czf "$DIST/${APP}-${goos}-${goarch}.tar.gz" -C "$DIST" "${APP}-${goos}-${goarch}"
     echo "    -> $DIST/${APP}-${goos}-${goarch}.tar.gz"
   fi
+  rm -rf "$stage"   # keep only the archives in dist/
   built=$((built+1))
 done
 
